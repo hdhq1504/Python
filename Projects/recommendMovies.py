@@ -1,20 +1,24 @@
-movies = [
-    ["Harry Potter and The Philosopher's Stone", "Adventure", 152, 2001],
-    ["Dune: Part Two", "Science Fiction", 167, 2024],
-    ["Black Panther", "Action", 135, 2018],
-    ["Oppenheimer", "Drama", 181, 2023],
-    ["Avengers: End Game", "Adventure", 181, 2019],
-    ["Interstellar", "Science Fiction", 169, 2014],
-    ["The Dark Knight", "Action", 152, 2008]
-]
+import pandas as pd
+
+movies = {
+    'Name' : ['Harry Potter and The Philosopher\'s Stone', 'Dune: Part Two', 'Black Panther', 'Oppenheimer', 'Avengers: End Game', 'Interstellar', 'The Dark Knight'],
+    'Genre' : ['Adventure', 'Science Fiction', 'Action', 'Drama', 'Adventure', 'Science Fiction', 'Action'],
+    'Length': [152, 167, 135, 181, 181, 169, 152],
+    'Year' : [2001, 2024, 2018, 2023, 2019, 2014, 2008]
+}
+
+df = pd.DataFrame(movies)
 
 # Hàm lọc phim theo thể loại và năm
-def recommend_movies(genre, year):
-    return [movie for movie in movies if movie[1].lower() == genre.lower() and movie[3] == year]
+def recommend_movies(genre, year = None):
+    if year:
+        movie = df[(df['Genre'].str.lower() == genre.lower()) & (df['Year'] == year)]
+    else:
+        movie = df[df['Genre'].str.lower() == genre.lower()]
+    return movie
 
 # Khởi động chatbot
-print("Hi! I'm your AI chatbot.")
-print("How are you today?")
+print("Hi! How are you today?")
 mood = input()
 
 if mood.lower() in ["fine", "good", "great", "okay"]:
@@ -25,19 +29,19 @@ if mood.lower() in ["fine", "good", "great", "okay"]:
     year_input = input()
     
     if year_input.lower() == "any":
-        recommended_movies = [movie for movie in movies if movie[1].lower() == genre.lower()]
+        recommended_movies = recommend_movies(genre)
     else:
         try:
             year = int(year_input)
             recommended_movies = recommend_movies(genre, year)
         except ValueError:
             print("Invalid year input. Please enter a valid year.")
-            recommended_movies = []
+            recommended_movies = pd.DataFrame()
 
-    if recommended_movies:
+    if not recommended_movies.empty:
         print(f"Here are some {genre} movies you might like:")
-        for movie in recommended_movies:
-            print(f"- {movie[0]} ({movie[3]})")
+        for _, movie in recommended_movies.iterrows():
+            print(f"- {movie['Name']} ({movie['Year']})")
     else:
         print(f"Sorry, I don't have any {genre} movies for the year {year_input} to recommend right now.")
 else:
